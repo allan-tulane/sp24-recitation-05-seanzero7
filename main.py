@@ -1,23 +1,37 @@
+from collections.abc import Sized
+from builtins import len
 import random, time
 import tabulate
+import sys
+sys.setrecursionlimit(20000)
 
 def ssort(L):
-    ### selection sort
-    if (len(L) == 1):
-        return(L)
-    else:
-        m = L.index(min(L))
-        print('selecting minimum %s' % L[m])       
-        L[0], L[m] = L[m], L[0]
-        print('recursively sorting L=%s\n' % L[1:])
-        return [L[0]] + selection_sort(L[1:])
-        
+  ### selection sort
+  if (len(L) == 1):
+    return (L)
+  else:
+    m = L.index(min(L))
+    print('selecting minimum %s' % L[m])
+    L[0], L[m] = L[m], L[0]
+    print('recursively sorting L=%s\n' % L[1:])
+    return [L[0]] + ssort(L[1:])
+
+
 def qsort(a, pivot_fn):
-    ## TO DO
-    pass
-    
+  if len(a) < 1:
+    return a
+  else:
+    p = pivot_fn(a)
+    # print(p)
+    left = [x for x in a if x < p]
+    middle = [x for x in a if x == p]
+    right = [x for x in a if x > p]
+    #print((len(left), len(right)))
+    return qsort(left, pivot_fn) + middle + qsort(right, pivot_fn)
+
+
 def time_search(sort_fn, mylist):
-    """
+  """
     Return the number of milliseconds to run this
     sort function on this list.
 
@@ -34,13 +48,14 @@ def time_search(sort_fn, mylist):
       the number of milliseconds it takes to run this
       search function on this input.
     """
-    start = time.time()
-    sort_fn(mylist)
-    return (time.time() - start) * 1000
-    ###
+  start = time.time()
+  sort_fn(mylist)
+  return (time.time() - start) * 1000
+  ###
 
-def compare_sort(sizes=[100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000]):
-    """
+
+def compare_sort(sizes=[100, 200, 300, 400, 504, 666, 911, 888, 711, 626]):
+  """
     Compare the running time of different sorting algorithms.
 
     Returns:
@@ -49,33 +64,43 @@ def compare_sort(sizes=[100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 10
       indicating the number of milliseconds it takes
       for each method to run on each value of n
     """
-    ### TODO - sorting algorithms for comparison
-    qsort_fixed_pivot = # 
-    qsort_random_pivot = #
-    tim_sort = #
-    result = []
-    for size in sizes:
-        # create list in ascending order
-        mylist = list(range(size))
-        # shuffles list if needed
-        #random.shuffle(mylist)
-        result.append([
-            len(mylist),
-            time_search(qsort_fixed_pivot, mylist),
-            time_search(qsort_random_pivot, mylist),
-        ])
-    return result
-    ###
+  ### TODO - sorting algorithms for comparison
+  qsort_fixed_pivot = lambda a: qsort(a, lambda b: b[0])
+  qsort_random_pivot = lambda a: qsort(a, lambda b: random.choice(b))
+  tim_sort = lambda a: sorted(a)
+  result = []
+  for size in sizes:
+    # create list in ascending order
+    mylist = list(range(size))
+    # shuffles list if needed
+    #random.shuffle(mylist)
+    result.append([
+        len(mylist),
+        time_search(qsort_fixed_pivot, mylist),
+        time_search(qsort_random_pivot, mylist),
+        time_search(tim_sort, mylist)
+    ])
+  return result
+  ###
+
 
 def print_results(results):
-    """ change as needed for comparisons """
-    print(tabulate.tabulate(results,
-                            headers=['n', 'qsort-fixed-pivot', 'qsort-random-pivot'],
-                            floatfmt=".3f",
-                            tablefmt="github"))
+  """ change as needed for comparisons """
+  print(
+      tabulate.tabulate(
+          results,
+          headers=['n', 'qsort-fixed-pivot', 'qsort-random-pivot', 'tim_sort'],
+          floatfmt=".3f",
+          tablefmt="github"))
+
 
 def test_print():
-    print_results(compare_sort())
+  print_results(compare_sort())
+
+
+def fixed_pivot(a):
+  pass
+
 
 random.seed()
 test_print()
